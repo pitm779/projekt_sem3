@@ -10,6 +10,15 @@ conn = pymysql.connect(
 
 try:
     with conn.cursor() as cursor:
+        # table reset 
+        sql_delete = "DELETE FROM `trip_category`"
+        sql_reset_index = "ALTER TABLE `trip_category` AUTO_INCREMENT = 1"
+        cursor.execute(sql_delete)
+        conn.commit()
+        cursor.execute(sql_reset_index)
+        conn.commit()
+
+
         # Create a new record
         sql = "INSERT INTO `trip_category` (`category_name`) VALUES (%s)"
         cursor.execute(sql, ('test'))
