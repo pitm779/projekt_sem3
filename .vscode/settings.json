@@ -13,6 +13,20 @@
             "database": "team03",
             "username": "team03",
             "password": "te@mzaoe"
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "127.0.0.1",
+            "port": 3306,
+            "driver": "MariaDB",
+            "name": "projekt",
+            "database": "team_03",
+            "username": "user",
+            "password": "12345"
         }
     ]
 }

@@ -1,9 +1,9 @@
 
 CREATE TABLE address (
   address_id  INT NOT NULL AUTO_INCREMENT,
-  address     VARCHAR(40) NULL,
+  address     VARCHAR(100) NULL,
   postal_code VARCHAR(15) NULL,
-  city        VARCHAR(20) NULL COMMENT 'POLSKA GUROM',
+  city        VARCHAR(20) NULL,
   PRIMARY KEY (address_id)
 ) ENGINE=InnoDB COMMENT='#3';
 
@@ -16,10 +16,10 @@ CREATE TABLE trip_category (
 CREATE TABLE staff (
   staff_id   INT NOT NULL AUTO_INCREMENT COMMENT 'min 5 pracowników',
   address_id INT NOT NULL,
-  first_name VARCHAR(25) NULL,
-  last_name  VARCHAR(25) NULL,
+  first_name VARCHAR(40) NULL,
+  last_name  VARCHAR(40) NULL,
   salary     INT NULL COMMENT 'min krajowa, więcej nie płacimy',
-  email      VARCHAR(25) NULL,
+  email      VARCHAR(80) NULL,
   hire_date  DATE NULL COMMENT '1.01.2024 min 5 wtedy',
   birth_date DATE NULL COMMENT '18+',
   PRIMARY KEY (staff_id)
@@ -28,9 +28,9 @@ CREATE TABLE staff (
 CREATE TABLE customers (
   customer_id  INT NOT NULL AUTO_INCREMENT,
   address_id   INT NOT NULL,
-  first_name   VARCHAR(25) NULL,
-  last_name    VARCHAR(25) NULL,
-  email        VARCHAR(25) NULL,
+  first_name   VARCHAR(40) NULL,
+  last_name    VARCHAR(40) NULL,
+  email        VARCHAR(80) NULL,
   phone_number INT NULL,
   birth_date   DATE NULL COMMENT '15+',
   ICE_number   INT NULL,
