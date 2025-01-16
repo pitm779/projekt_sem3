@@ -30,10 +30,12 @@ def generowanie_adresow(liczba_pracownikow, liczba_klientow):
             adres = losowy_adres(vertical_boundaries, horizontal_boundaries, decimals)
         
         ulica = adres[1]
-        numer = str(round(random.uniform(1, 50), 0))
+        numer = str(int(round(random.uniform(1, 50), 0)))
         kod_pocztowy = adres[-2]
         miasto = adres[3]
 
         result.append([ulica + " " + numer, kod_pocztowy, miasto])
 
     return result
+
+print(generowanie_adresow())
