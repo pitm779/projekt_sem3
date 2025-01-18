@@ -1,3 +1,10 @@
+DROP TABLE IF EXISTS team03.costs;
+DROP TABLE IF EXISTS team03.payment;
+DROP TABLE IF EXISTS team03.staff;
+DROP TABLE IF EXISTS team03.customers;
+DROP TABLE IF EXISTS team03.address;
+DROP TABLE IF EXISTS team03.trips;
+DROP TABLE IF EXISTS team03.trip_category;
 
 CREATE TABLE address (
   address_id  INT NOT NULL AUTO_INCREMENT,
@@ -16,11 +23,11 @@ CREATE TABLE trip_category (
 CREATE TABLE staff (
   staff_id   INT NOT NULL AUTO_INCREMENT COMMENT 'min 5 pracowników',
   address_id INT NOT NULL,
-  first_name VARCHAR(40) NULL,
-  last_name  VARCHAR(40) NULL,
-  salary     INT NULL COMMENT 'min krajowa, więcej nie płacimy',
-  email      VARCHAR(80) NULL,
-  hire_date  DATE NULL COMMENT '1.01.2024 min 5 wtedy',
+  first_name VARCHAR(50) NULL,
+  last_name  VARCHAR(50) NULL,
+  salary     INT NULL COMMENT 'min krajowa',
+  email      VARCHAR(100) NULL,
+  hire_date  DATE NULL,
   birth_date DATE NULL COMMENT '18+',
   PRIMARY KEY (staff_id)
 ) ENGINE=InnoDB COMMENT='#5';
@@ -28,9 +35,9 @@ CREATE TABLE staff (
 CREATE TABLE customers (
   customer_id  INT NOT NULL AUTO_INCREMENT,
   address_id   INT NOT NULL,
-  first_name   VARCHAR(40) NULL,
-  last_name    VARCHAR(40) NULL,
-  email        VARCHAR(80) NULL,
+  first_name   VARCHAR(50) NULL,
+  last_name    VARCHAR(50) NULL,
+  email        VARCHAR(100) NULL,
   phone_number INT NULL,
   birth_date   DATE NULL COMMENT '15+',
   ICE_number   INT NULL,
@@ -41,13 +48,12 @@ CREATE TABLE trips (
   trip_id       INT NOT NULL AUTO_INCREMENT COMMENT 'w poprzedni rok zrealizowano min 10 wyjazdów min 5 rodzajów było na nich min 30 osób',
   category_id   INT NOT NULL,
   trip_name     VARCHAR(40) NULL,
-  margin        FLOAT NULL COMMENT 'tyle zarabiamy na kliencie',
+  cost_to_client       FLOAT NULL COMMENT 'cena dla klienta',
   begin_date    DATE NULL,
   end_date      DATE NULL,
   abroad        BOOLEAN NULL,
-  creation_date DATE NULL COMMENT 'firma musi działać minimum rok zaczynając od 1.01.2024 ale nie musi być od wtedy',
+  creation_date DATE NULL COMMENT 'firma musi działać minimum rok',
   description   VARCHAR(255) NULL,
-  max_spots     INT NULL COMMENT 'max ilość ludzi na wycieczce',
   PRIMARY KEY (trip_id)
 ) ENGINE=InnoDB COMMENT='#2';
 
@@ -65,10 +71,9 @@ CREATE TABLE payment (
   staff_id     INT NOT NULL,
   trip_id      INT NOT NULL,
   payment_date TIMESTAMP NULL COMMENT 'musi być po creation_date i przed begin_date (najlepiej jakiś deadline np tydzień przed begin)',
-  amount       INT NULL COMMENT 'ilość zakupionych miejsc na wycieczce, nie może przekroczyć liczby miejsc na wycieczce',
+  amount       INT NULL,
   PRIMARY KEY (payment_id)
 ) ENGINE=InnoDB COMMENT='#6';
-
 
 -- PAYMENT -> CUSTOMERS
 ALTER TABLE payment

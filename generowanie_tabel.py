@@ -54,29 +54,39 @@ def generowanie_costs():
     indeksy_wycieczek = range(1, 19)
 
     koszty = {'id_wycieczek': indeksy_wycieczek, 
-              'Transport': [np.random.randint(4400, 4700), np.random.randint(7700, 8000), np.random.randint(7000, 7300), np.random.randint(4300, 4600), np.random.randint(380, 480), np.random.randint(70, 100), np.random.randint(3300, 3700), np.random.randint(80, 100), np.random.randint(1000, 1300), np.random.randint(3300, 3700), np.random.randint(40, 50), np.random.randint(4300, 4600), np.random.randint(12200, 12500), np.random.randint(1100, 1400), np.random.randint(560, 660), np.random.randint(160, 200), np.random.randint(3400, 3700), np.random.randint(1050, 1350)], 
+              'Transport': [np.random.randint(4400, 4700), np.random.randint(7700, 8000), 
+                            np.random.randint(7000, 7300), np.random.randint(4300, 4600), 
+                            np.random.randint(380, 480), np.random.randint(40, 80), 
+                            np.random.randint(3300, 3700), np.random.randint(60, 80), 
+                            np.random.randint(1000, 1300), np.random.randint(3300, 3700), 
+                            np.random.randint(60, 80), np.random.randint(4300, 4600), 
+                            np.random.randint(12200, 12500), np.random.randint(1100, 1400), 
+                            np.random.randint(560, 660), np.random.randint(300, 350), 
+                            np.random.randint(3400, 3700), np.random.randint(1050, 1350)], 
               'Zakwaterowanie': [], 
               'Opłata instruktora/przewodnika': []}
     
     for i in range(0, 18): #tworzenie cen zakwaterowania
-        if koszty['Transport'][i] <= 100:
-            koszty['Zakwaterowanie'].append(koszty['Transport'][i]*3)
-        elif 100 < koszty['Transport'][i] <= 500:
-            koszty['Zakwaterowanie'].append(koszty['Transport'][i]*2)
-        elif 500 < koszty['Transport'][i] <= 1000: 
-            koszty['Zakwaterowanie'].append(koszty['Transport'][i])
+        margines = np.random.randint(10, 14) 
+        koszty['Transport'][i] = koszty['Transport'][i] * margines
+        if koszty['Transport'][i] <= 200 * margines:
+            koszty['Zakwaterowanie'].append(int(koszty['Transport'][i]*0.6*margines))
+        elif 200 < koszty['Transport'][i] <= 1000 * margines:
+            koszty['Zakwaterowanie'].append(int(koszty['Transport'][i]*0.2*margines))
+        elif 1000 < koszty['Transport'][i] <= 2000 * margines: 
+            koszty['Zakwaterowanie'].append(int(koszty['Transport'][i]*0.1*margines))
         else:
-            koszty['Zakwaterowanie'].append(round(koszty['Transport'][i]*0.5))
+            koszty['Zakwaterowanie'].append(int(koszty['Transport'][i]*0.05*margines))
     
-    for i in range(0, 18): #tworzenie opłaty dla przewodnika
-        if koszty['Transport'][i] <= 100:
-            koszty['Opłata instruktora/przewodnika'].append(koszty['Transport'][i]*6)
-        elif 100 < koszty['Transport'][i] <= 500:
-            koszty['Opłata instruktora/przewodnika'].append(koszty['Transport'][i]*3)
-        elif 500 < koszty['Transport'][i] <= 1000: 
-            koszty['Opłata instruktora/przewodnika'].append(koszty['Transport'][i]*2)
+    #tworzenie opłaty dla przewodnika
+        if koszty['Transport'][i] <= 200 * margines:
+            koszty['Opłata instruktora/przewodnika'].append(int(koszty['Transport'][i]*0.4*margines))
+        elif 200 < koszty['Transport'][i] <= 1000 * margines:
+            koszty['Opłata instruktora/przewodnika'].append(int(koszty['Transport'][i]*0.1*margines))
+        elif 1000 < koszty['Transport'][i] <= 2000 * margines: 
+            koszty['Opłata instruktora/przewodnika'].append(int(koszty['Transport'][i]*0.05*margines))
         else:
-            koszty['Opłata instruktora/przewodnika'].append(round(koszty['Transport'][i]*1.2))
+            koszty['Opłata instruktora/przewodnika'].append(int(round(koszty['Transport'][i]*0.02*margines)))
 
     for i in range(0, 18):
         j = 0
@@ -122,15 +132,15 @@ def generowanie_trips(tabela_cost):
 
 
     for i in range(0, 18):
-        creation_date = pierwsza_data + datetime.timedelta(days = i*21) #co 3 tygodnie publikujemy nową wycieczkę, dzięki temu daty nie będą się nakładać
-        begin_date = creation_date + datetime.timedelta(days = 67) 
+        creation_date = pierwsza_data + datetime.timedelta(days = i*18) #co 18 dni publikujemy nową wycieczkę, dzięki temu daty nie będą się nakładać
+        begin_date = creation_date + datetime.timedelta(days = 59) 
         end_date = begin_date + datetime.timedelta(days = 7) #wycieczka trwa tydzień
-        margin = suma_kosztów.iloc[i]['amount']*1.2
+        cost_per_client = int(suma_kosztów.iloc[i]['amount']*0.12)
         trip_name = nazwy[i][0]
         category_id = nazwy[i][1]
         description = nazwy[i][2]
         abroad = nazwy[i][3]
-        lista_trips.append((i+1, category_id, trip_name, margin, begin_date, end_date, abroad, creation_date, description)) # i to trip_id, może max_spots do usunięcia (albo zamiast tego min_spots)??
+        lista_trips.append((i+1, category_id, trip_name, cost_per_client, begin_date, end_date, abroad, creation_date, description)) # i to trip_id, 
     return lista_trips
 
 tabela_trips = generowanie_trips(tabela_cost)
@@ -148,7 +158,7 @@ def generowanie_payment(liczba_pracowników, liczba_klientów, liczba_wierszy, t
     for i in range(liczba_klientów+liczba_wierszy):
         customer_id = customers_id[i] 
         trip_id = trips_id[i]
-        payment_date = fake.date_between(start_date = trips[trip_id - 1][7], end_date = trips[trip_id - 1][4] - datetime.timedelta(days=7)) #end_date to deadline, 4 i 7 to indeksy begin_date i creation_date
+        payment_date = fake.date_time_between(start_date = trips[trip_id - 1][7], end_date = trips[trip_id - 1][4] - datetime.timedelta(days=7)) #end_date to deadline, 4 i 7 to indeksy begin_date i creation_date
         amount = np.random.choice(range(1, 5), 1)[0]
         staff_id = np.random.randint(1, liczba_pracowników+1)
         lista_payment.append([i+1, customer_id, staff_id, trip_id, payment_date, amount]) #i+1 to indeks zapłaty

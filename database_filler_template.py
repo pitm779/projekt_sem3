@@ -15,42 +15,23 @@ tabela_staff = generowanie_tabel.generowanie_staff(liczba_klientów, liczba_prac
 tabela_address = generowanie_tabel.generowanie_adresow(liczba_pracowników, liczba_klientów)
 
 conn = pymysql.connect(
-    host='127.0.0.1',
-    user='user',
-    password='12345',
-    db='team_03',
+    host='giniewicz.it',
+    user='team03',
+    password='te@mzaoe',
+    db='team03',
     cursorclass=pymysql.cursors.DictCursor
 )
 
 try:
     with conn.cursor() as cursor:
         # Create a new record
-        sql_delete_trips = 'DELETE FROM `trips`'
-        sql_delete_costs = 'DELETE FROM `costs`'
-        sql_delete_customers = 'DELETE FROM `customers`'
-        sql_delete_payment = 'DELETE FROM `payment`'
-        sql_delete_address = 'DELETE FROM `address`'
-        sql_delete_staff = 'DELETE FROM `staff`'
-
-        cursor.execute(sql_delete_costs)
-        conn.commit()
-        cursor.execute(sql_delete_payment)
-        conn.commit()
-        cursor.execute(sql_delete_staff)
-        conn.commit()
-        cursor.execute(sql_delete_customers)
-        conn.commit()
-        cursor.execute(sql_delete_address)
-        conn.commit()
-        cursor.execute(sql_delete_trips)
-        conn.commit()
 
         sql_reset_index = "ALTER TABLE `trips` AUTO_INCREMENT = 1"
         cursor.execute(sql_reset_index)
         conn.commit()
         
         for i in range(0, len(tabela_trips)):
-            sql = "INSERT INTO `trips` (`trip_id`, `category_id`, `trip_name`, `margin`, `begin_date`, `end_date`, `abroad`, `creation_date`, `description`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            sql = "INSERT INTO `trips` (`trip_id`, `category_id`, `trip_name`, `cost_to_client`, `begin_date`, `end_date`, `abroad`, `creation_date`, `description`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
             cursor.execute(sql, (tabela_trips[i][0], tabela_trips[i][1], tabela_trips[i][2], tabela_trips[i][3], tabela_trips[i][4], 
                              tabela_trips[i][5], tabela_trips[i][6], tabela_trips[i][7], tabela_trips[i][8]))
 
