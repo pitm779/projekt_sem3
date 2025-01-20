@@ -293,3 +293,61 @@ print(nie_wracaja)
 dbDisconnect(con)
 
 ```
+
+```{r}
+con22 <- dbConnect(RMariaDB::MariaDB(),
+                 dbname = "team03",
+                 username = "team03",
+                 password = "te@mzaoe",
+                 host = "giniewicz.it")
+del_query <- "
+DROP TABLE IF EXISTS temp_adresy;
+"
+dbExecute(con22, del_query)
+
+create_query <- "
+CREATE TABLE IF NOT EXISTS temp_adresy (
+    col1 VARCHAR(100),
+    col2 VARCHAR(10)
+);
+"
+dbExecute(con22, create_query)
+
+query <- "
+LOAD DATA LOCAL INFILE 'C:/Users/admin/Desktop/programowanie/sem3/PROJEKT/Adresy_StanNa20250119.csv'
+INTO TABLE temp_adresy
+FIELDS TERMINATED BY ';'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS
+(@a,@b,col1,col2,@c,@d,@e,@f);
+"
+dbExecute(con22, query)
+
+query_update <- "
+UPDATE temp_adresy
+SET col1 = REPLACE(col1, 'ul. ', '');
+"
+dbExecute(con22, query_update)
+
+#liczba dobrych adresów
+query1 <- "
+SELECT COUNT(*)
+FROM temp_adresy t
+LEFT JOIN address a
+ON CONCAT(t.col1, ' ', t.col2) = a.address
+WHERE a.address IS NOT NULL;
+"
+value1 <- dbGetQuery(con22, query1)
+dbExecute(con22, del_query)
+
+#procent fałszywych numerów
+guery2 <- "
+SELECT 
+    ROUND((COUNT(CASE WHEN LEFT(phone_number, 2) IN ('45', '50', '51', '53', '57', '60', '66', '69', '72', '73', '78', '79', '88') THEN 1 END) * 100.0) / COUNT(*), 2) AS procent_dobrych_num
+FROM customers;
+"
+value2 <- dbGetQuery(con22, query2)
+
+dbDisconnect(con22)
+```
+
