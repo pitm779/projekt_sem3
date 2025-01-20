@@ -2,23 +2,23 @@ import pymysql
 import generowanie_tabel
 
 
-liczba_klientów = 100
-liczba_wierszy = 20 #liczba klientów na 2+ wycieczkach
+liczba_klientów = 200
+liczba_wierszy = 40 #liczba klientów z 2+ wpłatami
 liczba_pracowników = 5
 
 gen_imiona_nazwiska_email_addressid = generowanie_tabel.generowanie_imiona_nazwiska_email_addressid(liczba_klientów, liczba_pracowników)
 tabela_customers = generowanie_tabel.generowanie_customers(liczba_klientów, gen_imiona_nazwiska_email_addressid)
-tabela_cost = generowanie_tabel.generowanie_costs()
+tabela_cost = generowanie_tabel.generowanie_costs(liczba_klientów)
 tabela_trips = generowanie_tabel.generowanie_trips(tabela_cost)
 tabela_payment = generowanie_tabel.generowanie_payment(liczba_pracowników, liczba_klientów, liczba_wierszy, tabela_trips)
 tabela_staff = generowanie_tabel.generowanie_staff(liczba_klientów, liczba_pracowników, gen_imiona_nazwiska_email_addressid)
 tabela_address = generowanie_tabel.generowanie_adresow(liczba_pracowników, liczba_klientów)
 
 conn = pymysql.connect(
-    host='giniewicz.it',
-    user='team03',
-    password='te@mzaoe',
-    db='team03',
+    host='127.0.0.1',
+    user='user',
+    password='12345',
+    db='team_03',
     cursorclass=pymysql.cursors.DictCursor
 )
 
@@ -69,8 +69,8 @@ try:
         conn.commit() 
 
         for i in range(0, len(tabela_payment)):
-            sql = 'INSERT INTO `payment` (`payment_id`, `customer_id`, `staff_id`, `trip_id`, `payment_date`, `amount`) VALUES (%s, %s, %s, %s, %s, %s)'
-            cursor.execute(sql, (tabela_payment[i][0], tabela_payment[i][1], tabela_payment[i][2], tabela_payment[i][3], tabela_payment[i][4], tabela_payment[i][5]))
+            sql = 'INSERT INTO `payment` (`payment_id`, `customer_id`, `staff_id`, `trip_id`, `payment_date`, `amount`, `payment_type`) VALUES (%s, %s, %s, %s, %s, %s, %s)'
+            cursor.execute(sql, (tabela_payment[i][0], tabela_payment[i][1], tabela_payment[i][2], tabela_payment[i][3], tabela_payment[i][4], tabela_payment[i][5], tabela_payment[i][6]))
             conn.commit()
 
         sql_reset_index = "ALTER TABLE `costs` AUTO_INCREMENT = 1"

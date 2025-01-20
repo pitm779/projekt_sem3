@@ -1,10 +1,10 @@
-DROP TABLE IF EXISTS team03.costs;
-DROP TABLE IF EXISTS team03.payment;
-DROP TABLE IF EXISTS team03.staff;
-DROP TABLE IF EXISTS team03.customers;
-DROP TABLE IF EXISTS team03.address;
-DROP TABLE IF EXISTS team03.trips;
-DROP TABLE IF EXISTS team03.trip_category;
+DROP TABLE IF EXISTS team_03.costs;
+DROP TABLE IF EXISTS team_03.payment;
+DROP TABLE IF EXISTS team_03.staff;
+DROP TABLE IF EXISTS team_03.customers;
+DROP TABLE IF EXISTS team_03.address;
+DROP TABLE IF EXISTS team_03.trips;
+DROP TABLE IF EXISTS team_03.trip_category;
 
 CREATE TABLE address (
   address_id  INT NOT NULL AUTO_INCREMENT,
@@ -72,6 +72,7 @@ CREATE TABLE payment (
   trip_id      INT NOT NULL,
   payment_date TIMESTAMP NULL COMMENT 'musi być po creation_date i przed begin_date (najlepiej jakiś deadline np tydzień przed begin)',
   amount       INT NULL,
+  payment_type VARCHAR(20) NULL,
   PRIMARY KEY (payment_id)
 ) ENGINE=InnoDB COMMENT='#6';
 

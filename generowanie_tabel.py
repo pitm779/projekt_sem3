@@ -8,6 +8,8 @@ from functools import partial
 from geopy.geocoders import Nominatim #pobrać
 import random
 
+
+
 fake = Faker()
 
 imiona = pd.read_csv('lista_imion.csv')
@@ -16,7 +18,7 @@ nazwiska = pd.read_csv('lista_nazwisk.csv')
 def generowanie_imiona_nazwiska_email_addressid(liczba_klientów, liczba_pracowników):
     lista = []
     gen_imiona_płeć = imiona.sample(n = liczba_klientów+liczba_pracowników, replace=True, weights=imiona['CZĘSTOŚĆ'])[['IMIĘ_PIERWSZE', 'PŁEĆ']]
-    gen_numery_email = np.random.choice(999, liczba_klientów+liczba_pracowników, replace=False)
+    gen_numery_email = np.random.choice(2000, liczba_klientów+liczba_pracowników, replace=False)
     nazwiska_męskie = nazwiska.query("PŁEĆ == 'MĘŻCZYZNA'")
     nazwiska_żeńskie = nazwiska.query("PŁEĆ == 'KOBIETA'")
     gen_address_id = np.random.choice(range(1,liczba_klientów+liczba_pracowników+1), liczba_klientów+liczba_pracowników, replace=False)
@@ -39,16 +41,20 @@ def generowanie_customers(liczba_klientów, gen_imiona_nazwiska_email_addressid)
 
     lista_customers = []
     gen_numery_telefonu = random.sample(range(500000000,899999999), liczba_klientów*2)
+    age = np.random.normal(loc = 40, scale = 5, size = liczba_klientów)
+    age = np.clip(age, 15, 80).astype(int)
 
     for i in range(liczba_klientów):
-        birth_date = fake.date(end_datetime = '-15y')
+    
         phone_number = gen_numery_telefonu[2*i]
         ICE_number = gen_numery_telefonu[2*i+1] #na pewno będą różne numery u wszystkich
+        birth_date = fake.date_between_dates(date_start = datetime.date.fromisoformat('2025-01-01') - datetime.timedelta(days = int(age[i]*365.25)), 
+                                             date_end = datetime.date.fromisoformat('2025-12-31') - datetime.timedelta(days = int(age[i]*365.25)))
 
         lista_customers.append((i+1,  gen_imiona_nazwiska_email_addressid[i][2],gen_imiona_nazwiska_email_addressid[i][0], gen_imiona_nazwiska_email_addressid[i][1], gen_imiona_nazwiska_email_addressid[i][3], phone_number, birth_date, ICE_number)) #i+1 to id klienta
     return lista_customers
 
-def generowanie_costs():
+def generowanie_costs(liczba_klientów):
     lista_kosztów = []
 
     indeksy_wycieczek = range(1, 19)
@@ -67,10 +73,10 @@ def generowanie_costs():
               'Opłata instruktora/przewodnika': []}
     
     for i in range(0, 18): #tworzenie cen zakwaterowania
-        margines = np.random.randint(10, 14) 
+        margines = np.random.randint(liczba_klientów // (15 + 2), liczba_klientów // (15-2)) 
         koszty['Transport'][i] = koszty['Transport'][i] * margines
         if koszty['Transport'][i] <= 200 * margines:
-            koszty['Zakwaterowanie'].append(int(koszty['Transport'][i]*0.6*margines))
+            koszty['Zakwaterowanie'].append(int(koszty['Transport'][i]*0.6*margines)) #na ten moment takie mnożniki, ale mogą w przyszłości się zmienić
         elif 200 < koszty['Transport'][i] <= 1000 * margines:
             koszty['Zakwaterowanie'].append(int(koszty['Transport'][i]*0.2*margines))
         elif 1000 < koszty['Transport'][i] <= 2000 * margines: 
@@ -98,7 +104,7 @@ def generowanie_costs():
     return lista_kosztów
 
 
-tabela_cost = generowanie_costs()
+#tabela_cost = generowanie_costs()
 
 
 def generowanie_trips(tabela_cost):
@@ -135,7 +141,7 @@ def generowanie_trips(tabela_cost):
         creation_date = pierwsza_data + datetime.timedelta(days = i*18) #co 18 dni publikujemy nową wycieczkę, dzięki temu daty nie będą się nakładać
         begin_date = creation_date + datetime.timedelta(days = 59) 
         end_date = begin_date + datetime.timedelta(days = 7) #wycieczka trwa tydzień
-        cost_per_client = int(suma_kosztów.iloc[i]['amount']*0.12)
+        cost_per_client = int(suma_kosztów.iloc[i]['amount']*0.09)
         trip_name = nazwy[i][0]
         category_id = nazwy[i][1]
         description = nazwy[i][2]
@@ -143,7 +149,7 @@ def generowanie_trips(tabela_cost):
         lista_trips.append((i+1, category_id, trip_name, cost_per_client, begin_date, end_date, abroad, creation_date, description)) # i to trip_id, 
     return lista_trips
 
-tabela_trips = generowanie_trips(tabela_cost)
+#tabela_trips = generowanie_trips(tabela_cost)
 
 
 def generowanie_payment(liczba_pracowników, liczba_klientów, liczba_wierszy, tabela_trips): #liczba wierszy to będzie liczba klientów, którzy kupili 2 lub więcej wycieczek
@@ -159,9 +165,11 @@ def generowanie_payment(liczba_pracowników, liczba_klientów, liczba_wierszy, t
         customer_id = customers_id[i] 
         trip_id = trips_id[i]
         payment_date = fake.date_time_between(start_date = trips[trip_id - 1][7], end_date = trips[trip_id - 1][4] - datetime.timedelta(days=7)) #end_date to deadline, 4 i 7 to indeksy begin_date i creation_date
+        payment_date = payment_date.replace(hour = np.random.randint(8, 20), minute=np.random.randint(0, 60), second=np.random.randint(0,60))
         amount = np.random.choice(range(1, 5), 1)[0]
+        payment_type = random.choice(['gotówka', 'karta'])
         staff_id = np.random.randint(1, liczba_pracowników+1)
-        lista_payment.append([i+1, customer_id, staff_id, trip_id, payment_date, amount]) #i+1 to indeks zapłaty
+        lista_payment.append([i+1, customer_id, staff_id, trip_id, payment_date, amount, payment_type]) #i+1 to indeks zapłaty
     return lista_payment
 
 
@@ -216,4 +224,3 @@ def generowanie_adresow(liczba_pracowników, liczba_klientów):
         result.append([ulica + " " + numer, kod_pocztowy, miasto])
 
     return result
-
