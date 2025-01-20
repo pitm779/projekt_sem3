@@ -1,6 +1,6 @@
 ---
-title: "Raport_team03"
-author: "Team_03"
+title: "Raport - grupa K"
+author: "Tadeusz Jagniewski, Paweł Karwecki, Piotr Marciniak, Kacper Daniel, Konrad Mądry"
 date: "2025-01-19"
 output: 
   pdf_document:
@@ -13,12 +13,22 @@ header-includes:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
+if (!requireNamespace("RMariaDB", quietly = TRUE)) install.packages("RMariaDB")
+if (!requireNamespace("ggplot2", quietly = TRUE)) install.packages("ggplot2")
+if (!requireNamespace("tidyr", quietly = TRUE)) install.packages("tidyr")
+if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
+if (!requireNamespace("scales", quietly = TRUE)) install.packages("scales")
+if (!requireNamespace("knitr", quietly = TRUE)) install.packages("knitr")
+if (!requireNamespace("kableExtra", quietly = TRUE)) install.packages("kableExtra")
 library(RMariaDB)
 library(ggplot2)
 library(tidyr)
 library(dplyr)
 library(scales)
+library(knitr)
+library(kableExtra)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, fig.align = "center", warning = FALSE)
 options(scipen = 999)
 mem.maxVSize(vsize = 99999000)
 
@@ -27,7 +37,6 @@ mem.maxVSize(vsize = 99999000)
 
 # Znajdź najpopularniejsze rodzaje wycieczek, porównaj koszta i zyski, czy są opłacalne?
 
-## Wykres nr1 + Wnioski
 
 ```{r}
 con2 <- dbConnect(RMariaDB::MariaDB(),
@@ -66,9 +75,10 @@ ggplot(df2, aes(x = category_id, y = liczba_klientów, fill = liczba_klientów))
   geom_bar(stat = "identity") +
   labs(
     x = "Kategoria",
-    y = "Liczba klientów",
-    title = "Liczba klientów w poszczególnych kategoriach",
-    fill = "liczba klientów wzgledem kategorii"
+    y = "Liczba podrózujacych",
+    title = "Liczba podrózujących w poszczególnych kategoriach",
+    fill = "Liczba podrózujacych 
+wzgledem kategorii"
   ) +
   theme(axis.text.x = element_text(angle = 45))
 
@@ -83,11 +93,10 @@ dbDisconnect(con2)
 
 ```
 
-Najpopularnijeszą kategorią wycieczki jest `r max` i wybrało ją `r stat$maxlk` klientów.
+Najpopularnijeszą kategorią wycieczki jest `r max` i wybrało ją `r stat$maxlk` podróżujących.
 
-Najmniej popularną kategorią wycieczki jest `r min` i wybrało ją `r stat$minlk` klientów.
+Najmniej popularną kategorią wycieczki jest `r min` i wybrało ją `r stat$minlk` podróżujących.
 
-## Wykres nr2 + Wnioski
 
 ```{r}
 con2 <- dbConnect(RMariaDB::MariaDB(),
@@ -115,20 +124,38 @@ df2_long <- df2 %>%
   pivot_longer(
     cols = c(koszty, przychód, dochód),
     names_to = "typ",         
-    values_to = "wartosc"     
+    values_to = "wartosc"
   ) %>%
-  mutate(wartosc = case_when(
-    typ == "koszty"   ~ -abs(wartosc),  
-    typ == "przychód" ~ abs(wartosc),   
-    typ == "dochód"   ~ wartosc,       
-    TRUE             ~ wartosc
-  ))
-ggplot(df2_long, aes(x = category_id, y = wartosc, fill = typ)) +
+  mutate(
+    wartosc = case_when(
+      typ == "koszty"   ~ abs(wartosc),  
+      typ == "przychód" ~ abs(wartosc),   
+      typ == "dochód"   ~ wartosc,
+      TRUE              ~ wartosc
+    ),
+    typ2 = case_when(
+      typ == "przychód"             ~ "przychód",
+      typ == "koszty"               ~ "koszty",
+      typ == "dochód" & wartosc < 0 ~ "dochód ujemny",
+      typ == "dochód" & wartosc >=0 ~ "dochód dodatni"
+    )
+  ) %>%
+  mutate(
+    typ2 = factor(
+      typ2, 
+      levels = c("przychód", "koszty", "dochód dodatni", "dochód ujemny")
+    )
+  )
+  
+ggplot(df2_long, aes(x = category_id, y = wartosc, fill = typ2)) +
   geom_col(position = position_dodge(width = 0.8)) +
   scale_fill_manual(
-    values = c("koszty" = "red", 
-               "przychód" = "green", 
-               "dochód" = "blue")
+    values = c(
+      "przychód"       = "green",
+      "koszty"         = "red",
+      "dochód dodatni" = "darkgreen",
+      "dochód ujemny"  = "darkred"
+    )
   ) +
   labs(
     x = "Kategoria",
@@ -187,16 +214,15 @@ Najwyższy przychód posiada kategoria `r maxpname` i wynosi on `r maxp`.
 
 Najmniejszy przychód posiada kategoria `r minpname` i wynosi on `r minp`.
 
-Najmniejsze koszty odnosi kategoria `r maxkname` i wynoszą one `r -maxk`.
+Największe koszty odnosi kategoria `r maxkname` i wynoszą one `r maxk`.
 
-Największe koszty odnosi kategoria `r minkname` i wynoszą one `r -mink`.
+Najmniejsze koszty odnosi kategoria `r minkname` i wynoszą one `r mink`.
 
 
 
 
 # Sporządź wykres liczby obsłużonych klientów w każdym miesiącu działalności firmy, czy firma rośnie, czy podupada?
 
-## Wykres + Wnioski
 
 ```{r}
 con3 <- dbConnect(RMariaDB::MariaDB(),
@@ -215,30 +241,60 @@ df3 <- dbGetQuery(con3, p3)
 df3 <- unite(df3, miesiąc, rok, col="miesiac_rok", sep="_")
 ggplot(df3, aes(x = miesiac_rok, y = obsłużeni, fill = obsłużeni)) +
   geom_bar(stat = "identity") +
-  scale_x_discrete(limits=df3$miesiac_rok) +
-  theme(axis.text.x=element_text(angle = 60), axis.text.y=element_text(family = "Arial"))+
-  scale_y_discrete(name = "liczba obsluzonych klientów")+
-  labs(fill = "liczba obsluzonych klientów")
-dbDisconnect(con3)
+  scale_x_discrete(limits = df3$miesiac_rok) +
+  theme(
+    axis.text.x = element_text(angle = 60)
+  ) +
+  scale_y_continuous(
+    name   = "Liczba obsluzonych klientów",
+    labels = label_number(big.mark = " ", decimal.mark = ",")
+  ) +
+  labs(fill = "Liczba obsluzonych klientów")
+
 
 maxkl <- df3$obsłużeni[which.max(df3$obsłużeni)]
 maxkldate <- df3$miesiac_rok[which.max(df3$obsłużeni)]
 minkl <- df3$obsłużeni[which.min(df3$obsłużeni)]
 minkldate <- df3$miesiac_rok[which.min(df3$obsłużeni)]
 
-#nw jak zrobic tendencje wyzkowa/zwizkowa
+df3$miesiac_rok <- as.character(df3$miesiac_rok)
 
+df3$miesiac <- as.numeric(sub("_.*", "", df3$miesiac_rok))  
+df3$rok     <- as.numeric(sub(".*_", "", df3$miesiac_rok)) 
+
+
+df3 <- df3[order(df3$rok, df3$miesiac), ]
+
+
+df3$miesiac_rok <- paste(df3$miesiac, df3$rok, sep = "_")
+
+n <- nrow(df3)
+index_last6 <- (n - 5):n       
+index_prev6 <- (n - 11):(n - 6) 
+
+avg_last6 <- round(mean(df3$obsłużeni[index_last6], na.rm = TRUE), 2)
+avg_prev6 <- round(mean(df3$obsłużeni[index_prev6], na.rm = TRUE), 2)
+
+if (avg_last6 > avg_prev6) {
+  trend <- "wzrostową"
+} else if (avg_last6 < avg_prev6) {
+  trend <- "spadkową"
+} else {
+  trend <- "stabilną"
+}
+dbDisconnect(con3)
 ```
 
-Firma najwiecej klientów obsłużyła `r maxkldate` i było ich `r maxkl`.
+Firma najwięcej klientów obsłużyła `r maxkldate` i było ich `r maxkl`.
 
 Firma najmniej klientów obsłużyła `r minkldate` i było ich `r minkl`.
+
+Firma przez ostatnie 12 miesięcy wykazuje tendencję `r trend`.
 
 
 
 # Sprawdź, po których wycieczkach klienci wracają na kolejne, a po których mają dość i więcej ich nie widzicie. Czy są takie, które być może powinny zniknąć z oferty?
 
-## Wnioski
 
 ```{r}
 con <- dbConnect(RMariaDB::MariaDB(),
@@ -276,26 +332,34 @@ ORDER BY t.trip_id;
 df <- dbGetQuery(con, p)
   
 wracaja <- df %>%
-  filter(liczba_powrotów > 0) %>%
-  pull(trip_name)
+  filter(liczba_powrotów > 0)
 
 nie_wracaja <- df %>%
   filter(liczba_powrotów == 0) %>%
   pull(trip_name)
+wracaja <- wracaja[, -1]
+wracaja <- wracaja %>%
+  arrange(desc(liczba_powrotów))
+kable(
+  wracaja, 
+  col.names = c("Po tych wycieczkach klienci wracają:", "ilość powrotów")
+)
 
-cat("Po tych wycieczkach klienci wracają:\n")
-print(wracaja)
 
-cat("\nPo tych wycieczkach klienci nie wracają:\n")
-print(nie_wracaja)
+kable(
+  nie_wracaja, 
+  col.names = "Po tych wycieczkach klienci nie wracają:"
+)
 
 dbDisconnect(con)
 
 ```
 
-Warto zmienić ich zawartość lub kompletnie usunąć z oferty.
+`r ifelse(nrow(nie_wracaja) == 0, "Nasz program wycieczek jest dobry, bo po każdej klienci wracaja.","Warto zmienić zawartość tych, po których nie wracają klienci, lub kompletnie usunąć je z oferty.") ` 
 
-# Sprawdź czy podany adres nie jest fałszywy.
+# Sprawdź czy klient podał fałszywe dane.
+
+## Ile procent klientów podało prawdziwy adres?
 
 ```{r}
 con22 <- dbConnect(RMariaDB::MariaDB(),
@@ -349,16 +413,53 @@ LEFT JOIN customers_address a
 ON CONCAT(t.col1, ' ', t.col2) = a.address
 WHERE a.address IS NOT NULL;
 "
+query_all <- "
+WITH customers_address AS (
+    SELECT address.address 
+    FROM address 
+    RIGHT JOIN customers
+        ON address.address_id = customers.address_id
+)
+SELECT COUNT(*) AS total_addresses
+FROM customers_address;
+"
+
+all_value <- dbGetQuery(con22, query_all) 
 value1 <- dbGetQuery(con22, query1)
 c <- dbExecute(con22, del_query)
-View(value1)
-#wykres kołowy tego ile jest adresów poprawnych a ile fałszych, potrzeba jeszcze jednego selecta wyciagajacego ilosc wszytskich adresów, później można poprostu przekopiować wykres kołowy z dołu i wstawic dane z tego.
+valid_count <- value1[[1]]     
+all_count   <- all_value[[1]]  
+
+invalid_count <- all_count - valid_count
+
+df_pie <- data.frame(
+  category = c("Prawdziwe", "Falszywe"),
+  count    = c(valid_count/all_count*100, 100*invalid_count/all_count)
+)
+library(ggplot2)
+
+ggplot(df_pie, aes(x = "", y = count, fill = category)) +
+  geom_col(width = 1, color = "white") +
+  coord_polar("y", start = 0) +
+    geom_text(
+    aes(label = paste0(round(count, 1), "%")),
+    position = position_stack(vjust = 0.5),
+    color = "white",  
+    size = 5          
+  )+
+  labs(
+    title = "Prawdziwe i falszywe adresy klientów",
+    fill = "Rodzaj adresu"
+  ) +
+  theme_void()
 dbDisconnect(con22)
 ```
 
-# Sprawdż procent prawdziwych numerów
+W bazie znajduje się `r round(invalid_count/all_count*100, 1)`% fałszywych adresów i `r round(valid_count/all_count*100, 1)`% prawdziwych adresów.
 
-## Wykres + Wnioski
+
+
+## Jaki procent klientów podało prawdziwy numer telefonu?
 
 ```{r}
 con4 <- dbConnect(RMariaDB::MariaDB(),
@@ -398,18 +499,48 @@ ggplot(df_pie, aes(x = "", y = wartosc, fill = kategoria)) +
 dbDisconnect(con4)
 ```
 
-W bazie znajduje się `r procf` procent fałszywych numerów i `r proc` procent prawdziwych numerów.
+W bazie znajduje się `r round(proc,1)`% fałszywych numerów i `r round(procf,1)`% prawdziwych numerów.
 
-Należy pozbyć się wszytskich fałszywych numerów.
+Należy wprowadzić ulepszony system uwierzytelniania.
 
-# Który pracownik wyrobił najwiekszy zysk
+# Który pracownik wyrobił najwiekszy przychód?
+
+W tabeli poniżej pracownicy zostali uszeregowani od największego do najmniejszego przychodu. 
 
 ```{r}
+con <- dbConnect(RMariaDB::MariaDB(),
+                 dbname = "team03",
+                 username = "team03",
+                 password = "te@mzaoe",
+                 host = "giniewicz.it")
+q <- "WITH transaction_value AS (
+    SELECT payment.staff_id, SUM(payment.amount * trips.cost_to_client) AS staff_income
+    FROM
+        payment
+    LEFT JOIN
+        trips
+    ON payment.trip_id = trips.trip_id
+    GROUP BY payment.staff_id
+)
+SELECT 
+    staff.first_name, staff.last_name, transaction_value.staff_income
+FROM 
+    transaction_value
+RIGHT JOIN
+    staff
+ON staff.staff_id = transaction_value.staff_id"
 
+x <- dbGetQuery(con,q)
+x <- x %>%
+  arrange(desc(staff_income))
+kable(
+  x, 
+  col.names = c("Imię", "Naziwsko", "Przychód pracownika")
+)
 ```
 
-# pytanie nr7
-# Która dzielnica Wrocławia generuje najlepszą sprzedaż
+
+# Która dzielnica Wrocławia generuje najlepszą sprzedaż?
 
 ```{r}
 con <- dbConnect(RMariaDB::MariaDB(),
@@ -435,7 +566,7 @@ query <- "
 ALTER TABLE temp_postCode
 ADD UNIQUE INDEX unique_postcode (col1, col2);
 "
-dbExecute(con, query)
+empty_output <- dbExecute(con, query)
 
 query <- "
 LOAD DATA LOCAL INFILE './Adresy_StanNa20250119.csv'
@@ -457,7 +588,7 @@ RIGHT JOIN
 ON address.address_id = customers.address_id
 )
 
-SELECT t.col2, COUNT(t.col2)
+SELECT t.col2, COUNT(t.col2) AS liczba
 FROM 
   temp_postCode t
 RIGHT JOIN 
@@ -467,8 +598,63 @@ GROUP BY t.col2;
 "
 value1 <- dbGetQuery(con, query1)
 empty_output <- dbExecute(con, del_query)
-View(value1)
+value1 <- value1[-1, ]
+value1$col2 <- c("Fabryczna", "Krzyki", "Psie pole", "Sródmiescie", "Stare miasto")
 
+ggplot(value1, aes(x = col2, y = liczba, fill = liczba)) +
+  geom_bar(stat = "identity") +
+  labs(
+    x = "Dzielnica Wroclawia",
+    y = "Liczba klientów",
+    title = "Liczba klientów w poszczególnych regionach Wroclawia",
+    fill = "Liczba klientów 
+wzgledem regionu"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45))
+maxr <- value1$col2[which.max(value1$liczba)]
+maxrl <- value1$liczba[which.max(value1$liczba)]
+minr <- value1$col2[which.min(value1$liczba)]
+minrl <- value1$liczba[which.min(value1$liczba)]
 dbDisconnect(con)
 ```
+
+Najlepszą sprzedaż generuje region `r maxr` i liczba klientów z tego regionu wynosi `r maxrl`.
+
+Najgorszą sprzedaż generuje region `r minr` i liczba klientów z tego regionu wynosi `r minrl`.
+
+
+# Ile procent klientów płaci kartą, a ile gotówką?
+
+```{r}
+con <- dbConnect(RMariaDB::MariaDB(),
+                 dbname = "team03",
+                 username = "team03",
+                 password = "te@mzaoe",
+                 host = "giniewicz.it")
+q <- "SELECT payment_type, COUNT(payment_id) as liczba
+        FROM payment
+        group by payment_type"
+v <- dbGetQuery(con,q)
+vsum <- sum(v$liczba)
+ggplot(v, aes(x = "", y = liczba/vsum*100, fill = payment_type)) +
+  geom_bar(stat = "identity", width = 1) +  
+  coord_polar("y", start = 0) +              
+  labs(
+    title = "Rodzaje platnosci",
+    fill = "Typ platnosci"
+  ) +            
+  scale_fill_manual(values = c("gotówka" = "lightgreen", "karta" = "lightblue"))+
+    geom_text(
+    aes(label = paste0(round(liczba/vsum*100, 1), "%")),
+    position = position_stack(vjust = 0.5),
+    color = "black",  
+    size = 5          
+  )+
+  theme_void()
+
+```
+
+Wychodzi na to, że `r round(v$liczba[1]/vsum*100,1)`% klientów płaci gotówką, a `r round(v$liczba[2]/vsum*100,1)`% klientów płaci kartą.
+
 
