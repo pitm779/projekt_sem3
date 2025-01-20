@@ -1,0 +1,295 @@
+---
+title: "Raport_team03"
+author: "Team_03"
+date: "2025-01-19"
+output: 
+  pdf_document:
+      number_sections: true
+      toc: true
+header-includes:
+  - \usepackage[polish]{babel}
+  - \usepackage[utf8]{inputenc}
+ 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+library(RMariaDB)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(scales)
+options(scipen = 999)
+mem.maxVSize(vsize = 99999000)
+
+```
+
+# PYTANIA
+
+## Znajdź najpopularniejsze rodzaje wycieczek, porównaj koszta i zyski, czy są opłacalne?
+
+### Wykres nr1 + Wnioski
+
+```{r}
+con2 <- dbConnect(RMariaDB::MariaDB(),
+                 dbname = "team03",
+                 username = "team03",
+                 password = "te@mzaoe",
+                 host = "giniewicz.it")
+p2 <- "SELECT category_id, SUM(suma_klientów) AS liczba_klientów, 
+SUM(suma_koszt) as koszty, 
+SUM(suma_klientów * trips.cost_to_client) as przychód,
+ SUM(suma_klientów * trips.cost_to_client) - SUM(suma_koszt) as dochód FROM trips
+
+LEFT JOIN (SELECT trip_id, SUM(amount) AS suma_klientów FROM payment
+            GROUP BY trip_id) AS liczba_klientów
+ON trips.trip_id = liczba_klientów.trip_id
+
+LEFT JOIN (SELECT trip_id, SUM(amount) AS suma_koszt FROM costs
+            GROUP BY trip_id) AS suma_kosztów
+ON trips.trip_id = suma_kosztów.trip_id
+
+GROUP BY category_id;
+
+
+
+
+"
+df2 <- dbGetQuery(con2, p2)
+  
+df2$category_id <- factor(
+  df2$category_id, 
+  levels = c(1, 2, 3, 4, 5, 6),
+  labels = c("Przygoda", "Historyczna", "Familijna", 
+             "Duchowa", "Sportowa", "Kulturowa")
+)
+ggplot(df2, aes(x = category_id, y = liczba_klientów, fill = liczba_klientów)) +
+  geom_bar(stat = "identity") +
+  labs(
+    x = "Kategoria",
+    y = "Liczba klientów",
+    title = "Liczba klientów w poszczególnych kategoriach",
+    fill = "liczba klientów wzgledem kategorii"
+  ) +
+  theme(axis.text.x = element_text(angle = 45))
+
+stat <- df2 %>%
+  summarise(
+    maxlk = max(liczba_klientów, na.rm = TRUE),
+    minlk = min(liczba_klientów, na.rm = TRUE)
+  )
+max <- df2$category_id[which.max(df2$liczba_klientów)]
+min <- df2$category_id[which.min(df2$liczba_klientów)]
+dbDisconnect(con2)
+
+```
+
+Najpopularnijeszą kategorią wycieczki jest `r max` i wybrało ją `r stat$maxlk` klientów.
+
+Najmniej popularną kategorią wycieczki jest `r min` i wybrało ją `r stat$minlk` klientów.
+
+### Wykres nr2 + Wnioski
+
+```{r}
+con2 <- dbConnect(RMariaDB::MariaDB(),
+                 dbname = "team03",
+                 username = "team03",
+                 password = "te@mzaoe",
+                 host = "giniewicz.it")
+p2 <- "SELECT category_id, SUM(suma_klientów) AS liczba_klientów, 
+SUM(suma_koszt) as koszty, 
+SUM(suma_klientów * trips.cost_to_client) as przychód,
+ SUM(suma_klientów * trips.cost_to_client) - SUM(suma_koszt) as dochód FROM trips
+
+LEFT JOIN (SELECT trip_id, SUM(amount) AS suma_klientów FROM payment
+            GROUP BY trip_id) AS liczba_klientów
+ON trips.trip_id = liczba_klientów.trip_id
+
+LEFT JOIN (SELECT trip_id, SUM(amount) AS suma_koszt FROM costs
+            GROUP BY trip_id) AS suma_kosztów
+ON trips.trip_id = suma_kosztów.trip_id
+
+GROUP BY category_id;"
+
+df2_long <- df2 %>%
+  select(category_id, koszty, przychód, dochód) %>%
+  pivot_longer(
+    cols = c(koszty, przychód, dochód),
+    names_to = "typ",         
+    values_to = "wartosc"     
+  ) %>%
+  mutate(wartosc = case_when(
+    typ == "koszty"   ~ -abs(wartosc),  
+    typ == "przychód" ~ abs(wartosc),   
+    typ == "dochód"   ~ wartosc,       
+    TRUE             ~ wartosc
+  ))
+ggplot(df2_long, aes(x = category_id, y = wartosc, fill = typ)) +
+  geom_col(position = position_dodge(width = 0.8)) +
+  scale_fill_manual(
+    values = c("koszty" = "red", 
+               "przychód" = "green", 
+               "dochód" = "blue")
+  ) +
+  labs(
+    x = "Kategoria",
+    y = "Wartosc",
+    fill = "Typ",
+    title = "Koszty, przychód i dochód w podziale na kategorie"
+  ) +
+  scale_y_continuous(labels = label_number(big.mark = " ", decimal.mark = ",")) +
+  theme_minimal()
+
+df_summary <- df2_long %>%
+  group_by(category_id, typ) %>%
+  summarise(wartosc = sum(wartosc, na.rm = TRUE), .groups = "drop") %>%
+  pivot_wider(
+    names_from = typ,
+    values_from = wartosc
+  ) %>%
+  mutate(
+    status_oplacalnosci = if_else(dochód > 0, "opłacalna", "nieopłacalna")
+  )
+
+oplacalne <- df_summary %>%
+  filter(dochód > 0) %>%
+  pull(category_id)
+
+nieoplacalne <- df_summary %>%
+  filter(dochód <= 0) %>%
+  pull(category_id)
+#dochód
+maxd <- max(df_summary$dochód, na.rm = TRUE)
+mind <- min(df_summary$dochód, na.rm = TRUE)
+maxdname <- df_summary$category_id[which.max(df_summary$dochód)]
+mindname <- df_summary$category_id[which.min(df_summary$dochód)]
+#przychód
+maxp <- max(df_summary$przychód, na.rm = TRUE)
+minp <- min(df_summary$przychód, na.rm = TRUE)
+maxpname <- df_summary$category_id[which.max(df_summary$przychód)]
+minpname <- df_summary$category_id[which.min(df_summary$przychód)]
+#koszty
+maxk <- max(df_summary$koszty, na.rm = TRUE)  # najmniej ujemne
+mink <- min(df_summary$koszty, na.rm = TRUE)  # najbardziej ujemne
+maxkname <- df_summary$category_id[which.max(df_summary$koszty)]
+minkname <- df_summary$category_id[which.min(df_summary$koszty)]
+dbDisconnect(con2)
+```
+
+Do kategorii wycieczek dochodowych dla firmy `r ifelse(length(oplacalne) == 0, "nie", "")` należą `r  ifelse(length(oplacalne) == 0, "żadne kategorie wycieczek", paste(oplacalne, collapse = ", "))`.
+
+Do kategorii wycieczek niedochodowych dla firmy `r ifelse(length(nieoplacalne) == 0, "nie", "")` należą `r  ifelse(length(nieoplacalne) == 0, "żadne kategorie wycieczek", paste(nieoplacalne, collapse = ", "))`.
+
+Najwyższy dochód przynosi kategoria `r maxdname` i wynosi on `r maxd`.
+
+Najmniejszy dochód przynosi kategoria `r mindname` i wynosi on `r mind`.
+
+Najwyższy przychód posiada kategoria `r maxpname` i wynosi on `r maxp`.
+
+Najmniejszy przychód posiada kategoria `r minpname` i wynosi on `r minp`.
+
+Najmniejsze koszty odnosi kategoria `r maxkname` i wynoszą one `r -maxk`.
+
+Największe koszty odnosi kategoria `r minkname` i wynoszą one `r -mink`.
+
+
+
+
+## Sporządź wykres liczby obsłużonych klientów w każdym miesiącu działalności firmy, czy firma rośnie, czy podupada?
+
+### Wykres + Wnioski
+
+```{r}
+con3 <- dbConnect(RMariaDB::MariaDB(),
+                 dbname = "team03",
+                 username = "team03",
+                 password = "te@mzaoe",
+                 host = "giniewicz.it")
+p3 <- "SELECT MONTH(payment_date) AS miesiąc, YEAR(payment_date) AS rok, COUNT(payment_id) AS obsłużeni FROM payment
+GROUP BY rok, miesiąc;
+
+
+"
+df3 <- dbGetQuery(con3, p3)
+  
+
+df3 <- unite(df3, miesiąc, rok, col="miesiac_rok", sep="_")
+ggplot(df3, aes(x = miesiac_rok, y = obsłużeni, fill = obsłużeni)) +
+  geom_bar(stat = "identity") +
+  scale_x_discrete(limits=df3$miesiac_rok) +
+  theme(axis.text.x=element_text(angle = 60), axis.text.y=element_text(family = "Arial"))+
+  scale_y_discrete(name = "liczba obsluzonych klientów")+
+  labs(fill = "liczba obsluzonych klientów")
+dbDisconnect(con3)
+
+maxkl <- df3$obsłużeni[which.max(df3$obsłużeni)]
+maxkldate <- df3$miesiac_rok[which.max(df3$obsłużeni)]
+minkl <- df3$obsłużeni[which.min(df3$obsłużeni)]
+minkldate <- df3$miesiac_rok[which.min(df3$obsłużeni)]
+
+#nw jak zrobic tendencje wyzkowa/zwizkowa
+
+```
+
+Firma najwiecej klientów obsłużyła `r maxkldate` i było ich `r maxkl`.
+
+Firma najmniej klientów obsłużyła `r minkldate` i było ich `r minkl`.
+
+
+
+## Sprawdź, po których wycieczkach klienci wracają na kolejne, a po których mają dość i więcej ich nie widzicie. Czy są takie, które być może powinny zniknąć z oferty?
+
+### Wnioski
+
+```{r}
+con <- dbConnect(RMariaDB::MariaDB(),
+                 dbname = "team03",
+                 username = "team03",
+                 password = "te@mzaoe",
+                 host = "giniewicz.it")
+p <- "WITH kolejne_wycieczki AS (
+    SELECT 
+        customer_id,
+        trip_id,
+        LEAD(trip_id) OVER (PARTITION BY customer_id ORDER BY trip_id) AS next_trip_id
+    FROM payment
+),
+powroty AS (
+    SELECT 
+        trip_id,
+        COUNT(*) AS liczba_powrotów
+    FROM kolejne_wycieczki
+    WHERE next_trip_id IS NOT NULL
+      AND trip_id <> next_trip_id
+    GROUP BY trip_id
+)
+SELECT 
+    t.trip_id AS id_wycieczki,
+    t.trip_name,
+    COALESCE(p.liczba_powrotów, 0) AS liczba_powrotów
+FROM trips t
+LEFT JOIN powroty p 
+       ON t.trip_id = p.trip_id
+ORDER BY t.trip_id;
+
+
+"
+df <- dbGetQuery(con, p)
+  
+wracaja <- df %>%
+  filter(liczba_powrotów > 0) %>%
+  pull(trip_name)
+
+nie_wracaja <- df %>%
+  filter(liczba_powrotów == 0) %>%
+  pull(trip_name)
+
+cat("Po tych wycieczkach klienci wracają:\n")
+print(wracaja)
+
+cat("\nPo tych wycieczkach klienci nie wracają:\n")
+print(nie_wracaja)
+
+dbDisconnect(con)
+
+```
