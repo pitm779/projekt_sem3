@@ -1,1 +1,4 @@
 /venv
+.vscode
+.Rhistory
+__pycache__
