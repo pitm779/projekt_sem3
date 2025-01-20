@@ -24,11 +24,10 @@ mem.maxVSize(vsize = 99999000)
 
 ```
 
-# PYTANIA
 
-## Znajdź najpopularniejsze rodzaje wycieczek, porównaj koszta i zyski, czy są opłacalne?
+# Znajdź najpopularniejsze rodzaje wycieczek, porównaj koszta i zyski, czy są opłacalne?
 
-### Wykres nr1 + Wnioski
+## Wykres nr1 + Wnioski
 
 ```{r}
 con2 <- dbConnect(RMariaDB::MariaDB(),
@@ -88,7 +87,7 @@ Najpopularnijeszą kategorią wycieczki jest `r max` i wybrało ją `r stat$maxl
 
 Najmniej popularną kategorią wycieczki jest `r min` i wybrało ją `r stat$minlk` klientów.
 
-### Wykres nr2 + Wnioski
+## Wykres nr2 + Wnioski
 
 ```{r}
 con2 <- dbConnect(RMariaDB::MariaDB(),
@@ -195,9 +194,9 @@ Największe koszty odnosi kategoria `r minkname` i wynoszą one `r -mink`.
 
 
 
-## Sporządź wykres liczby obsłużonych klientów w każdym miesiącu działalności firmy, czy firma rośnie, czy podupada?
+# Sporządź wykres liczby obsłużonych klientów w każdym miesiącu działalności firmy, czy firma rośnie, czy podupada?
 
-### Wykres + Wnioski
+## Wykres + Wnioski
 
 ```{r}
 con3 <- dbConnect(RMariaDB::MariaDB(),
@@ -237,9 +236,9 @@ Firma najmniej klientów obsłużyła `r minkldate` i było ich `r minkl`.
 
 
 
-## Sprawdź, po których wycieczkach klienci wracają na kolejne, a po których mają dość i więcej ich nie widzicie. Czy są takie, które być może powinny zniknąć z oferty?
+# Sprawdź, po których wycieczkach klienci wracają na kolejne, a po których mają dość i więcej ich nie widzicie. Czy są takie, które być może powinny zniknąć z oferty?
 
-### Wnioski
+## Wnioski
 
 ```{r}
 con <- dbConnect(RMariaDB::MariaDB(),
@@ -294,6 +293,10 @@ dbDisconnect(con)
 
 ```
 
+Warto zmienić ich zawartość lub kompletnie usunąć z oferty.
+
+# Sprawdź czy podany adres nie jest fałszywy.
+
 ```{r}
 con22 <- dbConnect(RMariaDB::MariaDB(),
                  dbname = "team03",
@@ -303,7 +306,7 @@ con22 <- dbConnect(RMariaDB::MariaDB(),
 del_query <- "
 DROP TABLE IF EXISTS temp_adresy;
 "
-dbExecute(con22, del_query)
+x <- dbExecute(con22, del_query)
 
 create_query <- "
 CREATE TABLE IF NOT EXISTS temp_adresy (
@@ -311,43 +314,161 @@ CREATE TABLE IF NOT EXISTS temp_adresy (
     col2 VARCHAR(10)
 );
 "
-dbExecute(con22, create_query)
+y <- dbExecute(con22, create_query)
 
 query <- "
-LOAD DATA LOCAL INFILE 'C:/Users/admin/Desktop/programowanie/sem3/PROJEKT/Adresy_StanNa20250119.csv'
+LOAD DATA LOCAL INFILE './Adresy_StanNa20250119.csv'
 INTO TABLE temp_adresy
 FIELDS TERMINATED BY ';'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS
 (@a,@b,col1,col2,@c,@d,@e,@f);
 "
-dbExecute(con22, query)
+z <- dbExecute(con22, query)
 
 query_update <- "
 UPDATE temp_adresy
 SET col1 = REPLACE(col1, 'ul. ', '');
 "
-dbExecute(con22, query_update)
+v <- dbExecute(con22, query_update)
 
 #liczba dobrych adresów
 query1 <- "
+WITH customers_address AS (
+SELECT address.address 
+FROM 
+  address 
+RIGHT JOIN 
+  customers
+ON address.address_id = customers.address_id
+)
+
 SELECT COUNT(*)
 FROM temp_adresy t
-LEFT JOIN address a
+LEFT JOIN customers_address a
 ON CONCAT(t.col1, ' ', t.col2) = a.address
 WHERE a.address IS NOT NULL;
 "
 value1 <- dbGetQuery(con22, query1)
-dbExecute(con22, del_query)
+c <- dbExecute(con22, del_query)
+View(value1)
+#wykres kołowy tego ile jest adresów poprawnych a ile fałszych, potrzeba jeszcze jednego selecta wyciagajacego ilosc wszytskich adresów, później można poprostu przekopiować wykres kołowy z dołu i wstawic dane z tego.
+dbDisconnect(con22)
+```
 
+# Sprawdż procent prawdziwych numerów
+
+## Wykres + Wnioski
+
+```{r}
+con4 <- dbConnect(RMariaDB::MariaDB(),
+                 dbname = "team03",
+                 username = "team03",
+                 password = "te@mzaoe",
+                 host = "giniewicz.it")
 #procent fałszywych numerów
-guery2 <- "
+query2 <- "
 SELECT 
     ROUND((COUNT(CASE WHEN LEFT(phone_number, 2) IN ('45', '50', '51', '53', '57', '60', '66', '69', '72', '73', '78', '79', '88') THEN 1 END) * 100.0) / COUNT(*), 2) AS procent_dobrych_num
 FROM customers;
 "
-value2 <- dbGetQuery(con22, query2)
+value2 <- dbGetQuery(con4, query2)
+procf <- value2$procent_dobrych_num
+proc <- 100 - procf
 
-dbDisconnect(con22)
+df_pie <- data.frame(
+  kategoria = c("Prawdziwe", "Falszywe"),
+  wartosc   = c(procf, proc)
+)
+
+ggplot(df_pie, aes(x = "", y = wartosc, fill = kategoria)) +
+  geom_col(width = 1, color = "white") +
+  coord_polar("y", start = 0) +
+  geom_text(
+    aes(label = paste0(round(wartosc, 1), "%")),
+    position = position_stack(vjust = 0.5),
+    color = "white",  
+    size = 5          
+  )+
+  labs(
+    title = "Procent falszywych i prawidlowych numerów",
+    fill = "Kategoria"
+  ) +
+  theme_void()
+dbDisconnect(con4)
+```
+
+W bazie znajduje się `r procf` procent fałszywych numerów i `r proc` procent prawdziwych numerów.
+
+Należy pozbyć się wszytskich fałszywych numerów.
+
+# Który pracownik wyrobił najwiekszy zysk
+
+```{r}
+
+```
+
+# pytanie nr7
+# Która dzielnica Wrocławia generuje najlepszą sprzedaż
+
+```{r}
+con <- dbConnect(RMariaDB::MariaDB(),
+                 dbname = "team03",
+                 username = "team03",
+                 password = "te@mzaoe",
+                 host = "giniewicz.it")
+
+del_query <- "
+DROP TABLE IF EXISTS temp_postCode;
+"
+x <- dbExecute(con, del_query)
+
+create_query <- "
+CREATE TABLE IF NOT EXISTS temp_postCode (
+    col1 VARCHAR(6),
+    col2 VARCHAR(100)
+);
+"
+empty_output <- dbExecute(con, create_query)
+
+query <- "
+ALTER TABLE temp_postCode
+ADD UNIQUE INDEX unique_postcode (col1, col2);
+"
+dbExecute(con, query)
+
+query <- "
+LOAD DATA LOCAL INFILE './Adresy_StanNa20250119.csv'
+INTO TABLE temp_postCode
+FIELDS TERMINATED BY ';'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS
+(@a,@b,@c,@d,col1,@e,col2,@f);
+"
+empty_output <- dbExecute(con, query)
+
+query1 <- "
+WITH customers_address AS (
+SELECT address.postal_code 
+FROM 
+  address 
+RIGHT JOIN 
+  customers
+ON address.address_id = customers.address_id
+)
+
+SELECT t.col2, COUNT(t.col2)
+FROM 
+  temp_postCode t
+RIGHT JOIN 
+  customers_address a
+ON t.col1 = a.postal_code
+GROUP BY t.col2;
+"
+value1 <- dbGetQuery(con, query1)
+empty_output <- dbExecute(con, del_query)
+View(value1)
+
+dbDisconnect(con)
 ```
 
