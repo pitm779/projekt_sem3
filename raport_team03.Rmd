@@ -355,7 +355,7 @@ dbDisconnect(con)
 
 ```
 
-`r ifelse(nrow(nie_wracaja) == 0, "Nasz program wycieczek jest dobry, bo po każdej klienci wracaja.","Warto zmienić zawartość tych, po których nie wracają klienci, lub kompletnie usunąć je z oferty.") ` 
+`r ifelse(nrow(data.frame(nie_wracaja)) != 0,"Warto zmienić zawartość tych wycieczek, po których nie wracają klienci, lub kompletnie usunąć je z oferty.", "Nasz program wycieczek jest dobry, bo po każdej klienci wracaja.") ` 
 
 # Sprawdź czy klient podał fałszywe dane.
 
@@ -599,7 +599,7 @@ GROUP BY t.col2;
 value1 <- dbGetQuery(con, query1)
 empty_output <- dbExecute(con, del_query)
 value1 <- value1[-1, ]
-value1$col2 <- c("Fabryczna", "Krzyki", "Psie pole", "Sródmiescie", "Stare miasto")
+
 
 ggplot(value1, aes(x = col2, y = liczba, fill = liczba)) +
   geom_bar(stat = "identity") +
@@ -611,7 +611,7 @@ ggplot(value1, aes(x = col2, y = liczba, fill = liczba)) +
 wzgledem regionu"
   ) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45))
+  theme(axis.text.x = element_text(angle = 90))
 maxr <- value1$col2[which.max(value1$liczba)]
 maxrl <- value1$liczba[which.max(value1$liczba)]
 minr <- value1$col2[which.min(value1$liczba)]

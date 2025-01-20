@@ -5,15 +5,15 @@
 \usepackage{float}
 \usepackage{booktabs}
 \usepackage{geometry}
-\usepackage{hyperref}
+\usepackage{polski}
+\usepackage[hidelinks]{hyperref}
 \usepackage[section]{placeins}
 \usepackage[T1]{fontenc}
-
 % Ustawienia marginesów
 \geometry{top=3cm,bottom=2cm,left=2cm,right=2cm}
 
 \title{Dokumentacja Projektu Zaliczeniowego\\ \huge Baza danych dla firmy Wombat Grylls sp. z o.o.}
-\author{Autorzy}
+\author{Kacper Daniel, Tadeusz Jagniewski, Paweł Karwecki, Piotr Marciniak, Konrad Mądry}
 \date{\today}
 
 \begin{document}
@@ -28,16 +28,15 @@
 \section{Spis użytych technologii}
 \begin{itemize}
     \item System zarządzania bazą danych: MariaDB
-    \item Język programowania: Python (do generowania danych)
-    \item Narzędzie do analizy i raportowania: R Markdown
-    \item Narzędzia do generowania wykresów: R Markdown
+    \item Język programowania: Python (do generowania danych, spis bibliotek znajduje się w 
+pliku \texttt{requirements.txt})
+    \item Narzędzie do analizy, generowania wykresów i raportowania: R Markdown (wszystkie
+biblioteki znajdują się w pliku \texttt{raport\_team03})
     \item Format raportu: PDF
 \end{itemize}
 
 \section{Lista plików i opis ich zawartości}
 \begin{itemize}
-    \item \texttt{schemat.erd} - Diagram ERD bazy danych,
-    \item \texttt{adresy.py} - Skrypt generujący losowe adresy przy pomocy biblioteki geopy,
     \item \texttt{category\_fill.py} - Skrypt łączący się z bazą danych MySQL i wstawiający listę kategorii podróży,
     \item \texttt{generowanie\_tabel.py} - Skrypt generujący dane i tabele potrzebne do bazy danych,
     \item \texttt{database\_filler\_template.py} - Skrypt wstawiający wygenerowane dane do bazy danych,
@@ -55,13 +54,17 @@
 
 \section{Kolejność i sposób uruchamiania plików}
 \begin{enumerate}
-    \item 
+    \item Otwieramy cały folder z plikami w VS Code \\
+	\item Pobieramy biblioteki komendą \texttt{pip install -r requirements.txt} poprzez terminal w VS Code \\
+	\item Uruchamiamy plik \texttt{wszystko.py}, aby utworzyć i wpisać nowe dane do tabeli \\
+	\item Otwieramy plik \texttt{raport\_team03.Rmd} w RStudio i klikamy w opcję 'Knit' \\
+	\item Włączamy gotowy raport \texttt{raport\_team03.pdf}
 \end{enumerate}
 
 \section{Schemat projektu bazy danych}
 \begin{figure}[h!]
 \centering
-%\includegraphics[width=0.8\textwidth]{schema.png}  % Podmień na odpowiednią ścieżkę do pliku z schematem
+\includegraphics[width=\textwidth]{schemat_bazy.png}  % Podmień na odpowiednią ścieżkę do pliku z schematem
 \caption{Schemat bazy danych firmy Wombat Grylls sp. z o.o.}
 \end{figure}
 
@@ -116,5 +119,6 @@ Baza danych została zaprojektowana zgodnie z zasadami EKNF (Efektywnej Normalne
 \end{itemize}
 
 \section{Opis trudności podczas realizacji projektu}
+Najtrudniejszym elementem było generowanie danych. Musieliśmy przyjąć pewne uproszczenia, które spowodowały, że baza nie jest tak realistyczna, jak mogłaby być w prawdziwym życiu. 
 
 \end{document}

@@ -7,8 +7,8 @@
 \contentsline {subsection}{\numberline {5.2}Tabela: Costs}{4}{subsection.5.2}%
 \contentsline {subsection}{\numberline {5.3}Tabela: Customers}{4}{subsection.5.3}%
 \contentsline {subsection}{\numberline {5.4}Tabela: Payment}{4}{subsection.5.4}%
-\contentsline {subsection}{\numberline {5.5}Tabela: Staff}{4}{subsection.5.5}%
-\contentsline {subsection}{\numberline {5.6}Tabela: Trips}{4}{subsection.5.6}%
-\contentsline {subsection}{\numberline {5.7}Tabela: Trip\_category}{4}{subsection.5.7}%
-\contentsline {section}{\numberline {6}Uzasadnienie, że baza jest w EKNF}{5}{section.6}%
-\contentsline {section}{\numberline {7}Opis trudności podczas realizacji projektu}{5}{section.7}%
+\contentsline {subsection}{\numberline {5.5}Tabela: Staff}{5}{subsection.5.5}%
+\contentsline {subsection}{\numberline {5.6}Tabela: Trips}{5}{subsection.5.6}%
+\contentsline {subsection}{\numberline {5.7}Tabela: Trip\_category}{5}{subsection.5.7}%
+\contentsline {section}{\numberline {6}Uzasadnienie, że baza jest w EKNF}{6}{section.6}%
+\contentsline {section}{\numberline {7}Opis trudności podczas realizacji projektu}{6}{section.7}%

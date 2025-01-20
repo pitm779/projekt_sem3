@@ -1,6 +1,6 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2024.1.16)  20 JAN 2025 22:11
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.12.17)  20 JAN 2025 23:08
 entering extended mode
- restricted \write18 enabled.
+ \write18 enabled.
  %&-line parsing enabled.
 **dokumentacja.tex
 (./dokumentacja.tex
@@ -190,6 +190,53 @@ Package: iftex 2022/02/03 v1.0f TeX engine tests
 \Gm@layoutvoffset=\dimen176
 \Gm@dimlist=\toks25
 )
+(c:/texlive/2023/texmf-dist/tex/latex/polski/polski.sty
+Package: polski 2021/08/25 v1.3.6 Polish language package
+
+   Switching to Polish text encoding and Polish maths fonts.
+(c:/texlive/2023/texmf-dist/tex/latex/base/ot4enc.def
+File: ot4enc.def 2021/04/29 v2.0v Standard LaTeX file
+Now handling font encoding OT4 ...
+... no UTF-8 mapping file for font encoding OT4
+)
+LaTeX Font Info:    Trying to load font information for OT4+cmr on input line 3
+62.
+
+(c:/texlive/2023/texmf-dist/tex/latex/polski/ot4cmr.fd
+File: ot4cmr.fd 2008/02/24 v1.2.1 Font defs for fonts PL (MW)
+)
+LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
+(Font)                  OT1/cmr/bx/n --> OT4/cmr/bx/n on input line 362.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
+(Font)                  OT1/cmss/m/n --> OT4/cmss/m/n on input line 362.
+LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
+(Font)                  OT1/cmr/m/it --> OT4/cmr/m/it on input line 362.
+LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
+(Font)                  OT1/cmtt/m/n --> OT4/cmtt/m/n on input line 362.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
+(Font)                  OT1/cmss/bx/n --> OT4/cmss/bx/n on input line 362.
+LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
+(Font)                  OT1/cmr/bx/it --> OT4/cmr/bx/it on input line 362.
+LaTeX Font Info:    Encoding `OT1' has changed to `OT4' for symbol font
+(Font)              `operators' in the math version `normal' on input line 362.
+
+LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
+(Font)                  OT1/cmr/m/n --> OT4/cmr/m/n on input line 362.
+LaTeX Font Info:    Overwriting symbol font `letters' in version `normal'
+(Font)                  OML/cmm/m/it --> OML/plm/m/it on input line 362.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `normal'
+(Font)                  OMS/cmsy/m/n --> OMS/plsy/m/n on input line 362.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
+(Font)                  OMX/cmex/m/n --> OMX/plex/m/n on input line 362.
+LaTeX Font Info:    Encoding `OT1' has changed to `OT4' for symbol font
+(Font)              `operators' in the math version `bold' on input line 362.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
+(Font)                  OT1/cmr/bx/n --> OT4/cmr/bx/n on input line 362.
+LaTeX Font Info:    Overwriting symbol font `letters' in version `bold'
+(Font)                  OML/cmm/b/it --> OML/plm/b/it on input line 362.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
+(Font)                  OMS/cmsy/b/n --> OMS/plsy/b/n on input line 362.
+)
 (c:/texlive/2023/texmf-dist/tex/latex/hyperref/hyperref.sty
 Package: hyperref 2023-02-07 v7.00v Hypertext links for LaTeX
 
@@ -355,6 +402,8 @@ LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 19.
 LaTeX Font Info:    ... okay on input line 19.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 19.
 LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for OT4/cmr/m/n on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
 LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 19.
 LaTeX Font Info:    ... okay on input line 19.
 LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 19.
@@ -430,56 +479,116 @@ Package hyperref Info: Link coloring OFF on input line 19.
 \@outlinefile=\write3
 \openout3 = `dokumentacja.out'.
 
+LaTeX Font Info:    Trying to load font information for OML+plm on input line 2
+2.
+
+(c:/texlive/2023/texmf-dist/tex/latex/polski/omlplm.fd
+File: omlplm.fd 2008/02/24 v1.2.1 Font defs for fonts PL (MW)
+)
+LaTeX Font Info:    Trying to load font information for OMS+plsy on input line 
+22.
+
+(c:/texlive/2023/texmf-dist/tex/latex/polski/omsplsy.fd
+File: omsplsy.fd 2008/02/24 v1.2.1 Font defs for fonts PL (MW)
+)
+LaTeX Font Info:    Trying to load font information for OMX+plex on input line 
+22.
+
+(c:/texlive/2023/texmf-dist/tex/latex/polski/omxplex.fd
+File: omxplex.fd 2008/02/24 v1.2.1 Font defs for fonts PL (MW)
+)
+LaTeX Font Info:    External font `plex10' loaded for size
+(Font)              <12> on input line 22.
+LaTeX Font Info:    External font `plex10' loaded for size
+(Font)              <8> on input line 22.
+LaTeX Font Info:    External font `plex10' loaded for size
+(Font)              <6> on input line 22.
  [1
 
 {c:/texlive/2023/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{c:/texlive/2023/
-texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}] (./dokumentacja.toc)
+texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}] (./dokumentacja.toc
+LaTeX Font Info:    External font `plex10' loaded for size
+(Font)              <10> on input line 6.
+LaTeX Font Info:    External font `plex10' loaded for size
+(Font)              <7> on input line 6.
+LaTeX Font Info:    External font `plex10' loaded for size
+(Font)              <5> on input line 6.
+)
 \tf@toc=\write4
 \openout4 = `dokumentacja.toc'.
 
  [2]
 LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 3
-9.
+2.
 
 (c:/texlive/2023/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2022/07/10 v2.5l Standard LaTeX font definitions
 )
-Overfull \hbox (11.48045pt too wide) in paragraph at lines 46--47
-[]\T1/cmtt/m/n/10 wszystko.py \T1/cmr/m/n/10 - Skrypt uruchami-a-j¡cy skrypty \
-T1/cmtt/m/n/10 tabele.py\T1/cmr/m/n/10 , \T1/cmtt/m/n/10 category_fill.py \T1/c
-mr/m/n/10 i \T1/cmtt/m/n/10 database_filler_template.py\T1/cmr/m/n/10 , 
+Overfull \hbox (11.2594pt too wide) in paragraph at lines 45--46
+[]\T1/cmtt/m/n/10 wszystko.py \T1/cmr/m/n/10 - Skrypt uru-cha-mia-j¡-cy skryp-t
+y \T1/cmtt/m/n/10 tabele.py\T1/cmr/m/n/10 , \T1/cmtt/m/n/10 category_fill.py \T
+1/cmr/m/n/10 i \T1/cmtt/m/n/10 database_filler_template.py\T1/cmr/m/n/10 , 
  []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 57--58
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 58--59
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 59--60
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 60--61
+
+ []
+
+<schemat_bazy.png, id=90, 790.45313pt x 529.98pt>
+File: schemat_bazy.png Graphic file (type png)
+<use schemat_bazy.png>
+Package pdftex.def Info: schemat_bazy.png  used on input line 67.
+(pdftex.def)             Requested size: 500.484pt x 335.56313pt.
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 [3{c:/texlive/2023/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
-Overfull \hbox (4.87341pt too wide) in paragraph at lines 82--83
-[]\T1/cmr/m/n/10 customer_id $\OMS/cmsy/m/n/10 !$ \T1/cmr/m/n/10 ad-dress_id, f
-irst_name, last_name, email, phone_number, amount, birth_date, ICE_number 
+Overfull \hbox (3.32603pt too wide) in paragraph at lines 86--87
+[]\T1/cmr/m/n/10 customer_id $\OMS/plsy/m/n/10 !$ \T1/cmr/m/n/10 ad-dress_id, f
+irst_name, last_name, ema-il, pho-ne_number, amo-unt, birth_date, ICE_number 
  []
 
-[4] [5] (./dokumentacja.aux)
+[4{c:/texlive/2023/texmf-dist/fonts/enc/dvips/pl/plms.enc} <./schemat_bazy.png>
+] [5] [6] (./dokumentacja.aux)
 Package rerunfilecheck Info: File `dokumentacja.out' has not changed.
 (rerunfilecheck)             Checksum: 723FCECE63A5D6166011CE4702940991;2614.
  ) 
 Here is how much of TeX's memory you used:
- 11159 strings out of 476025
- 172652 string characters out of 5794015
- 1858382 words of memory out of 5000000
- 31448 multiletter control sequences out of 15000+600000
- 522961 words of font info for 56 fonts, out of 8000000 for 9000
+ 11414 strings out of 476025
+ 176448 string characters out of 5794014
+ 1860382 words of memory out of 5000000
+ 31668 multiletter control sequences out of 15000+600000
+ 526235 words of font info for 61 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,6n,76p,349b,436s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<c:/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/tex
-live/2023/texmf-dist/fonts/type1/public/cm-super/sfbx1000.pfb><c:/texlive/2023/
-texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb><c:/texlive/2023/texmf-dist
-/fonts/type1/public/cm-super/sfbx1440.pfb><c:/texlive/2023/texmf-dist/fonts/typ
-e1/public/cm-super/sfrm1000.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/
-cm-super/sfrm1200.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/cm-super/s
-frm1728.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/cm-super/sfrm2074.pf
-b><c:/texlive/2023/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb>
-Output written on dokumentacja.pdf (5 pages, 173546 bytes).
+ 75i,6n,76p,349b,506s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<c:/texlive/2023/texmf-dist/fonts/type1/public/pl/plsy10.pfb><c:/texlive/2023
+/texmf-dist/fonts/type1/public/cm-super/sfbx1000.pfb><c:/texlive/2023/texmf-dis
+t/fonts/type1/public/cm-super/sfbx1200.pfb><c:/texlive/2023/texmf-dist/fonts/ty
+pe1/public/cm-super/sfbx1440.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public
+/cm-super/sfrm1000.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/cm-super/
+sfrm1200.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/cm-super/sfrm1728.p
+fb><c:/texlive/2023/texmf-dist/fonts/type1/public/cm-super/sfrm2074.pfb><c:/tex
+live/2023/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb>
+Output written on dokumentacja.pdf (6 pages, 306066 bytes).
 PDF statistics:
- 158 PDF objects out of 1000 (max. 8388607)
- 130 compressed objects within 2 object streams
- 23 named destinations out of 1000 (max. 500000)
- 113 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 171 PDF objects out of 1000 (max. 8388607)
+ 140 compressed objects within 2 object streams
+ 28 named destinations out of 1000 (max. 500000)
+ 118 words of extra memory for PDF output out of 10000 (max. 10000000)
 
