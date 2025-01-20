@@ -15,10 +15,10 @@ tabela_staff = generowanie_tabel.generowanie_staff(liczba_klientów, liczba_prac
 tabela_address = generowanie_tabel.generowanie_adresow(liczba_pracowników, liczba_klientów)
 
 conn = pymysql.connect(
-    host='127.0.0.1',
-    user='user',
-    password='12345',
-    db='team_03',
+    host='giniewicz.it',
+    user='team03',
+    password='te@mzaoe',
+    db='team03',
     cursorclass=pymysql.cursors.DictCursor
 )
 
