@@ -2,8 +2,8 @@ import pymysql
 import generowanie_tabel
 
 
-liczba_klientów = 200
-liczba_wierszy = 40 #liczba klientów z 2+ wpłatami
+liczba_klientów = 150
+liczba_wierszy = 30 #liczba klientów z 2+ wpłatami
 liczba_pracowników = 5
 
 gen_imiona_nazwiska_email_addressid = generowanie_tabel.generowanie_imiona_nazwiska_email_addressid(liczba_klientów, liczba_pracowników)
@@ -15,10 +15,10 @@ tabela_staff = generowanie_tabel.generowanie_staff(liczba_klientów, liczba_prac
 tabela_address = generowanie_tabel.generowanie_adresow(liczba_pracowników, liczba_klientów)
 
 conn = pymysql.connect(
-    host='127.0.0.1',
-    user='user',
-    password='12345',
-    db='team_03',
+    host='giniewicz.it',
+    user='team03',
+    password='te@mzaoe',
+    db='team03',
     cursorclass=pymysql.cursors.DictCursor
 )
 
