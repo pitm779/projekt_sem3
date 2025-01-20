@@ -334,14 +334,24 @@ v <- dbExecute(con22, query_update)
 
 #liczba dobrych adresów
 query1 <- "
+WITH customers_address AS (
+SELECT address.address 
+FROM 
+  address 
+RIGHT JOIN 
+  customers
+ON address.address_id = customers.address_id
+)
+
 SELECT COUNT(*)
 FROM temp_adresy t
-LEFT JOIN address a
+LEFT JOIN customers_address a
 ON CONCAT(t.col1, ' ', t.col2) = a.address
 WHERE a.address IS NOT NULL;
 "
 value1 <- dbGetQuery(con22, query1)
 c <- dbExecute(con22, del_query)
+View(value1)
 #wykres kołowy tego ile jest adresów poprawnych a ile fałszych, potrzeba jeszcze jednego selecta wyciagajacego ilosc wszytskich adresów, później można poprostu przekopiować wykres kołowy z dołu i wstawic dane z tego.
 dbDisconnect(con22)
 ```
@@ -399,3 +409,66 @@ Należy pozbyć się wszytskich fałszywych numerów.
 ```
 
 # pytanie nr7
+# Która dzielnica Wrocławia generuje najlepszą sprzedaż
+
+```{r}
+con <- dbConnect(RMariaDB::MariaDB(),
+                 dbname = "team03",
+                 username = "team03",
+                 password = "te@mzaoe",
+                 host = "giniewicz.it")
+
+del_query <- "
+DROP TABLE IF EXISTS temp_postCode;
+"
+x <- dbExecute(con, del_query)
+
+create_query <- "
+CREATE TABLE IF NOT EXISTS temp_postCode (
+    col1 VARCHAR(6),
+    col2 VARCHAR(100)
+);
+"
+empty_output <- dbExecute(con, create_query)
+
+query <- "
+ALTER TABLE temp_postCode
+ADD UNIQUE INDEX unique_postcode (col1, col2);
+"
+dbExecute(con, query)
+
+query <- "
+LOAD DATA LOCAL INFILE './Adresy_StanNa20250119.csv'
+INTO TABLE temp_postCode
+FIELDS TERMINATED BY ';'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS
+(@a,@b,@c,@d,col1,@e,col2,@f);
+"
+empty_output <- dbExecute(con, query)
+
+query1 <- "
+WITH customers_address AS (
+SELECT address.postal_code 
+FROM 
+  address 
+RIGHT JOIN 
+  customers
+ON address.address_id = customers.address_id
+)
+
+SELECT t.col2, COUNT(t.col2)
+FROM 
+  temp_postCode t
+RIGHT JOIN 
+  customers_address a
+ON t.col1 = a.postal_code
+GROUP BY t.col2;
+"
+value1 <- dbGetQuery(con, query1)
+empty_output <- dbExecute(con, del_query)
+View(value1)
+
+dbDisconnect(con)
+```
+
